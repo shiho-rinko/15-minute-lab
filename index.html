@@ -1,13 +1,428 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>15分ラボ</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f4ee">
+<title>15分ラボ</title>
+<style>
+:root{--bg:#f7f4ee;--paper:#fffefa;--ink:#292c2a;--muted:#777c76;--line:#e7e2d8;--green:#456b58}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Hiragino Sans",Meiryo,sans-serif}
+header,nav,main{max-width:760px;margin:auto}
+header{padding:25px 18px 16px}
+.eyebrow{font-size:11px;letter-spacing:.18em;color:var(--green);font-weight:700}
+h1{font-family:Georgia,serif;font-size:32px;font-weight:500;margin:5px 0}
+.subtitle,.muted{color:var(--muted);font-size:12px}
+nav{display:flex;gap:7px;overflow:auto;padding:0 14px 14px}
+button,input,select{font:inherit}
+button,.btn{cursor:pointer}
+button,.btn{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:11px;padding:10px 12px;text-decoration:none;display:inline-block}
+nav button{white-space:nowrap;border-radius:99px;font-size:13px}
+nav button.active,.primary{background:var(--green);color:white;border-color:var(--green)}
+main{padding:0 14px 38px}
+section{display:none}
+section.active{display:block}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 3px 12px #38301a06}
+h2{font-size:17px;margin:0 0 12px}
+h3{font-size:14px;margin:18px 0 8px}
+.hero{background:#e8eee7;border:0}
+.big{font:30px Georgia,serif;color:var(--green)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:140px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+form{display:grid;gap:10px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+input,select{width:100%;min-width:0;border:1px solid #ded9cf;background:var(--paper);border-radius:10px;padding:11px;color:var(--ink)}
+input[type=file]{padding:8px}
+.small{padding:7px 10px;font-size:12px}
+.danger{color:#9a4c3b}
+.item{padding:13px 0;border-top:1px solid var(--line);overflow-wrap:anywhere}
+.item:first-child{border-top:0}
+.title{font-weight:600}
+.done .title{text-decoration:line-through;color:var(--muted)}
+.pill{display:inline-block;background:#e6eee7;color:var(--green);border-radius:99px;padding:3px 8px;font-size:11px}
+.warn{background:#f6e4dc;color:#8b4936}
+.progress{height:7px;background:#ece8df;border-radius:99px;overflow:hidden;margin:8px 0}
+.progress span{display:block;height:100%;background:var(--green);border-radius:99px}
+.empty{padding:14px 0;font-size:13px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#f6f3ec;padding:10px;border-radius:12px}
+.stat strong{display:block;font:23px Georgia,serif;color:var(--green)}
+.stat span{font-size:11px;color:var(--muted)}
+.notice{background:#f5eee0;padding:12px;border-radius:12px;font-size:12px;color:#6d5b3e;margin-top:12px}
+.footer{text-align:center;color:var(--muted);font-size:11px;margin-top:20px}
+a{color:var(--green)}
+.bar-row{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center;font-size:12px;margin:12px 0}
+.bar-row .progress{margin:0}
+button:focus-visible,a:focus-visible{outline:3px solid #b98c4b;outline-offset:3px}
+</style>
 </head>
 <body>
-  <h1>15分ラボ</h1>
-  <p>今日も、15分から。</p>
-  <p>小さな積み重ねを記録しよう。</p>
-  </body>
+<header>
+<div class="eyebrow">YOUR PERSONAL LEARNING SPACE</div>
+<h1>15分ラボ</h1>
+<div class="subtitle">小さく続けて、ちゃんと積み上げる。</div>
+</header>
+<nav aria-label="メインメニュー">
+<button data-tab="today" class="active">今日</button>
+<button data-tab="study">勉強</button>
+<button data-tab="books">読書</button>
+<button data-tab="library">図書館</button>
+<button data-tab="stats">記録・設定</button>
+</nav>
+<main>
+<section id="today" class="active">
+<div class="card hero">
+<div id="todayDate" class="muted"></div>
+<div class="row between">
+<div><div id="todayMinutes" class="big">0分</div><div class="muted">今日の学習時間</div></div>
+<div><div id="todayDone" class="big">0/0</div><div class="muted">今日の15分メニュー</div></div>
+</div>
+<div class="progress"><span id="todayProgress"></span></div>
+</div>
+<div class="card">
+<h2>今日の優先メニュー</h2>
+<div id="todayTasks"></div>
+<button class="primary" data-go="study">＋ 勉強メニューを追加</button>
+</div>
+<div class="card"><h2>返却期限が近い本</h2><div id="dueSoon"></div></div>
+<div class="card"><h2>読書中</h2><div id="readingNow"></div></div>
+</section>
+
+<section id="study">
+<div class="card">
+<h2>15分メニューを追加</h2>
+<form id="taskForm">
+<div><label for="taskName">やること</label><input id="taskName" required maxlength="100" placeholder="例：外務員二種 問題集15分"></div>
+<div class="two">
+<div><label for="taskCategory">分野</label><select id="taskCategory">
+<option>放送大学</option><option>証券外務員</option><option>簿記</option><option>FP</option><option>資格</option><option>数学</option><option>英語</option><option>書写</option><option>読書</option><option>運動</option><option>その他</option>
+</select></div>
+<div><label for="taskPriority">優先度</label><select id="taskPriority"><option>高</option><option selected>中</option><option>低</option></select></div>
+</div>
+<div><label for="taskDate">取り組む日</label><input id="taskDate" type="date" required></div>
+<button class="primary">メニューを追加（15分）</button>
+</form>
+</div>
+<div class="card"><h2>今日のメニュー</h2><div id="taskList"></div></div>
+<div class="card"><h2>これからのメニュー</h2><div id="futureTasks"></div></div>
+<div class="card"><h2>過去のメニュー</h2><div id="pastTasks"></div></div>
+</section>
+
+<section id="books">
+<div class="card">
+<h2>本を本棚に追加</h2>
+<form id="bookForm">
+<div><label for="bookTitle">本のタイトル</label><input id="bookTitle" required maxlength="120"></div>
+<div class="two">
+<div><label for="bookAuthor">著者（任意）</label><input id="bookAuthor" maxlength="80"></div>
+<div><label for="bookStatus">状態</label><select id="bookStatus"><option>読みたい</option><option>読書中</option><option>読了</option></select></div>
+</div>
+<div class="two">
+<div><label for="bookPage">現在のページ</label><input id="bookPage" type="number" min="0" step="1" value="0"></div>
+<div><label for="bookTotal">全ページ数（任意）</label><input id="bookTotal" type="number" min="1" step="1"></div>
+</div>
+<button class="primary">本を追加</button>
+</form>
+</div>
+<div class="card"><h2>マイ本棚</h2><div id="bookList"></div></div>
+</section>
+
+<section id="library">
+<div class="card">
+<h2>図書館の本を登録</h2>
+<form id="libForm">
+<div><label for="libTitle">本のタイトル</label><input id="libTitle" required maxlength="120"></div>
+<div class="two">
+<div><label for="borrowDate">貸出日</label><input id="borrowDate" type="date" required></div>
+<div><label for="dueDate">返却期限</label><input id="dueDate" type="date" required></div>
+</div>
+<div class="muted">貸出日＋14日で自動計算。実際に指定された期限に変更できます。</div>
+<button class="primary">借りた本を登録</button>
+</form>
+</div>
+<div class="card"><h2>借りている本</h2><div id="libraryList"></div></div>
+<div class="card"><h2>返却済み</h2><div id="returnedList"></div></div>
+</section>
+
+<section id="stats">
+<div class="card">
+<h2>学習の積み上げ</h2>
+<div class="stats">
+<div class="stat"><strong id="weekMinutes">0分</strong><span>直近7日の学習</span></div>
+<div class="stat"><strong id="weekSessions">0回</strong><span>直近7日の完了</span></div>
+<div class="stat"><strong id="readCount">0冊</strong><span>読了した本</span></div>
+</div>
+<h3>直近7日の学習時間</h3><div id="weekChart"></div>
+<h3>直近7日の分野別記録</h3><div id="categoryStats"></div>
+</div>
+<div class="card">
+<h2>Googleカレンダー</h2>
+<p class="muted">各メニューの「カレンダーへ」から予定を追加できます。勉強は指定日の終日予定として開くので、必要に応じて15分の時刻を設定して保存してください。図書館は返却日の終日予定です。</p>
+<p class="muted">Googleカレンダー側で保存すると登録されます。自動同期・変更の反映・重複防止は行いません。通知はGoogleカレンダーで設定してください。</p>
+</div>
+<div class="card">
+<h2>データのバックアップ</h2>
+<p class="muted">記録は使っているブラウザ内に保存します。別の端末には自動で引き継がれません。</p>
+<button id="exportButton" class="primary">バックアップを書き出す</button>
+<div style="margin-top:14px">
+<label for="importFile">バックアップを読み込む（現在の記録を置き換えます）</label>
+<input id="importFile" type="file" accept=".json,application/json">
+</div>
+<div class="notice">ブラウザのサイトデータを消すと記録も消える場合があります。ときどきバックアップを保存してください。このアプリ自体からの通知はありません。</div>
+<button id="clearButton" class="danger" style="margin-top:14px">すべての記録を削除</button>
+</div>
+</section>
+<div class="footer">15分でも、続けた分だけ自分の力になる。</div>
+</main>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const KEY='15lab-local-v1';
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const today=()=>iso(new Date());
+const addDays=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const pretty=s=>new Date(s+'T12:00:00').toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
+const diff=s=>Math.round((new Date(s+'T12:00:00')-new Date(today()+'T12:00:00'))/86400000);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+const empty=s=>`<div class="empty">${s}</div>`;
+const validDate=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&Number.isFinite(new Date(s+'T12:00:00').getTime())&&iso(new Date(s+'T12:00:00'))===s;
+const textField=s=>typeof s==='string'&&s.length<=500;
+const nonnegative=n=>Number.isSafeInteger(n)&&n>=0;
+function validData(d){
+if(!d||!['tasks','books','library'].every(k=>Array.isArray(d[k])))return false;
+if(['tasks','books','library'].some(k=>d[k].length>20000))return false;
+const ids=new Set();
+for(const k of ['tasks','books','library']){
+for(const x of d[k]){
+if(!x||typeof x.id!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(x.id)||ids.has(x.id)||!textField(x.title)||!x.title.trim())return false;
+ids.add(x.id);
+if(k==='tasks'&&(!validDate(x.date)||!textField(x.category)||!['高','中','低'].includes(x.priority)||typeof x.done!=='boolean'||(x.done&&!validDate(x.completedAt))))return false;
+if(k==='books'&&(!textField(x.author)||!['読みたい','読書中','読了'].includes(x.status)||!nonnegative(x.page)||!nonnegative(x.total)))return false;
+if(k==='library'&&(!validDate(x.borrowed)||!validDate(x.due)||typeof x.returned!=='boolean'))return false;
+}
+}
+return true;
+}
+let data={tasks:[],books:[],library:[]};
+let storageBlocked=false;
+try{
+const raw=localStorage.getItem(KEY);
+if(raw){
+const parsed=JSON.parse(raw);
+if(!validData(parsed))throw Error('invalid');
+data=parsed;
+}
+}catch(e){
+storageBlocked=true;
+alert('保存済みデータを読み込めませんでした。元のデータを保護するため保存を止めています。バックアップの読み込み、または「すべての記録を削除」で再開できます。');
+}
+function save(){
+if(storageBlocked){
+alert('保存を停止しています。記録・設定からバックアップを書き出してください。');
+render();return;
+}
+try{localStorage.setItem(KEY,JSON.stringify(data))}
+catch(e){alert('ブラウザへの保存ができませんでした。記録・設定からバックアップを書き出してください。')}
+render();
+}
+function showTab(id){
+document.querySelectorAll('main section').forEach(x=>x.classList.toggle('active',x.id===id));
+document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
+window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('[data-tab],[data-go]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab||b.dataset.go)));
+function calendarLink(title,date,details){
+const p=new URLSearchParams({action:'TEMPLATE',text:title,dates:date.replaceAll('-','')+'/'+addDays(date,1).replaceAll('-',''),details});
+return 'https://calendar.google.com/calendar/render?'+p.toString();
+}
+function calButton(title,date,details){
+return `<a class="btn small" target="_blank" rel="noopener noreferrer" href="${esc(calendarLink(title,date,details))}">カレンダーへ</a>`;
+}
+function delButton(type,id){
+return `<button class="small danger" data-action="delete" data-type="${type}" data-id="${id}">削除</button>`;
+}
+function taskHTML(t){
+return `<div class="item ${t.done?'done':''}">
+<div class="row between"><div class="grow"><div class="title">${esc(t.title)}</div><div class="muted">${esc(t.category)} · ${esc(t.priority)}優先 · ${pretty(t.date)}</div></div>
+<button class="${t.done?'':'primary'} small" data-action="toggle" data-id="${t.id}">${t.done?'完了済み ↩':'＋15分完了'}</button></div>
+<div class="row" style="margin-top:8px">${calButton(t.title,t.date,'15分ラボの学習メニュー。目安15分。必要に応じて開始時刻を設定してください。')}${delButton('tasks',t.id)}</div></div>`;
+}
+function renderTasks(){
+const date=today(),rank={'高':0,'中':1,'低':2};
+const list=data.tasks.filter(t=>t.date===date).sort((a,b)=>rank[a.priority]-rank[b.priority]);
+const html=list.length?list.map(taskHTML).join(''):empty('今日のメニューはまだありません。ひとつだけ登録してみよう。');
+$('todayTasks').innerHTML=html;$('taskList').innerHTML=html;
+const future=data.tasks.filter(t=>t.date>date).sort((a,b)=>a.date.localeCompare(b.date));
+const past=data.tasks.filter(t=>t.date<date).sort((a,b)=>b.date.localeCompare(a.date));
+$('futureTasks').innerHTML=future.length?future.map(taskHTML).join(''):empty('先の予定はありません。');
+$('pastTasks').innerHTML=past.length?past.map(taskHTML).join(''):empty('過去のメニューはありません。');
+const done=list.filter(t=>t.done).length;
+const completedToday=data.tasks.filter(t=>t.done&&t.completedAt===date).length;
+$('todayMinutes').textContent=completedToday*15+'分';
+$('todayDone').textContent=done+'/'+list.length;
+$('todayProgress').style.width=(list.length?done/list.length*100:0)+'%';
+}
+function renderBooks(){
+$('bookList').innerHTML=data.books.length?data.books.map(b=>{
+const pct=b.total?Math.min(100,Math.round(b.page/b.total*100)):0;
+return `<div class="item"><div class="row between"><div class="grow"><div class="title">${esc(b.title)}</div><div class="muted">${esc(b.author||'著者未入力')}</div></div>${delButton('books',b.id)}</div>
+<div class="two" style="margin-top:9px"><div><label for="page-${b.id}">現在のページ</label><input id="page-${b.id}" type="number" min="0" step="1" value="${b.page}" data-book="${b.id}" data-field="page"></div><div><label for="total-${b.id}">全ページ数</label><input id="total-${b.id}" type="number" min="0" step="1" value="${b.total||''}" data-book="${b.id}" data-field="total"></div></div>
+<label for="status-${b.id}" style="margin-top:9px">読書状況</label><select id="status-${b.id}" data-book="${b.id}" data-field="status">${['読みたい','読書中','読了'].map(s=>`<option ${s===b.status?'selected':''}>${s}</option>`).join('')}</select>
+${b.total?`<div class="progress"><span style="width:${pct}%"></span></div><div class="muted">${pct}% 読了</div>`:''}</div>`;
+}).join(''):empty('本がまだ登録されていません。');
+const reading=data.books.filter(b=>b.status==='読書中');
+$('readingNow').innerHTML=reading.length?reading.map(b=>`<div class="item"><div class="title">${esc(b.title)}</div><div class="muted">${b.page}${b.total?'/'+b.total:''}ページ</div></div>`).join(''):empty('読書中の本はまだありません。');
+}
+function dueLabel(date){
+const n=diff(date);
+return n<0?Math.abs(n)+'日超過':n===0?'今日が期限':'あと'+n+'日';
+}
+function libraryHTML(b){
+return `<div class="item"><div class="row between"><div class="grow"><div class="title">${esc(b.title)}</div><div class="muted">返却期限 ${esc(b.due)}</div></div><span class="pill ${diff(b.due)<=3?'warn':''}">${dueLabel(b.due)}</span></div>
+<div class="row" style="margin-top:9px"><button class="primary small" data-action="return" data-id="${b.id}">返却済みにする</button><button class="small" data-action="due" data-id="${b.id}">期限変更</button>${calButton('図書館返却：'+b.title,b.due,'図書館の本を返却する日。')}${delButton('library',b.id)}</div></div>`;
+}
+function renderLibrary(){
+const list=data.library.filter(b=>!b.returned).sort((a,b)=>a.due.localeCompare(b.due));
+$('libraryList').innerHTML=list.length?list.map(libraryHTML).join(''):empty('借りている本はありません。');
+const soon=list.filter(b=>diff(b.due)<=5);
+$('dueSoon').innerHTML=soon.length?soon.map(b=>`<div class="item"><div class="title">${esc(b.title)}</div><div class="muted">${esc(b.due)} <span class="pill ${diff(b.due)<=3?'warn':''}">${dueLabel(b.due)}</span></div></div>`).join(''):empty('5日以内に返す本はありません。');
+const returned=data.library.filter(b=>b.returned);
+$('returnedList').innerHTML=returned.length?returned.map(b=>`<div class="item"><div class="title">${esc(b.title)}</div><div class="row" style="margin-top:8px"><button class="small" data-action="undoReturn" data-id="${b.id}">貸出中に戻す</button>${delButton('library',b.id)}</div></div>`).join(''):empty('返却済みの本はありません。');
+}
+function bar(label,value,max,suffix){
+return `<div class="bar-row"><span>${esc(label)}</span><div class="progress"><span style="width:${max?value/max*100:0}%"></span></div><span>${value}${suffix}</span></div>`;
+}
+function renderStats(){
+const days=Array.from({length:7},(_,i)=>addDays(today(),i-6));
+const done=data.tasks.filter(t=>t.done&&days.includes(t.completedAt));
+$('weekMinutes').textContent=done.length*15+'分';
+$('weekSessions').textContent=done.length+'回';
+$('readCount').textContent=data.books.filter(b=>b.status==='読了').length+'冊';
+const values=days.map(d=>done.filter(t=>t.completedAt===d).length*15);
+const max=Math.max(30,...values);
+$('weekChart').innerHTML=days.map((d,i)=>bar(pretty(d),values[i],max,'分')).join('');
+const cats=new Map();
+done.forEach(t=>cats.set(t.category,(cats.get(t.category)||0)+1));
+const entries=[...cats].sort((a,b)=>b[1]-a[1]);
+$('categoryStats').innerHTML=entries.length?entries.map(([k,v])=>bar(k,v,entries[0][1],'回')).join(''):empty('メニューを完了すると記録が表示されます。');
+}
+function render(){
+$('todayDate').textContent=new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+renderTasks();renderBooks();renderLibrary();renderStats();
+}
+$('taskDate').value=today();
+$('borrowDate').value=today();
+$('dueDate').value=addDays(today(),14);
+$('borrowDate').addEventListener('change',()=>{
+if(validDate($('borrowDate').value))$('dueDate').value=addDays($('borrowDate').value,14);
+});
+$('taskForm').addEventListener('submit',e=>{
+e.preventDefault();
+const title=$('taskName').value.trim(),date=$('taskDate').value;
+if(!title||!validDate(date))return;
+data.tasks.push({id:uid(),title,category:$('taskCategory').value,priority:$('taskPriority').value,date,done:false,completedAt:null});
+$('taskName').value='';save();
+});
+$('bookForm').addEventListener('submit',e=>{
+e.preventDefault();
+const title=$('bookTitle').value.trim();
+const page=Number($('bookPage').value)||0,total=Number($('bookTotal').value)||0;
+if(!title||!nonnegative(page)||!nonnegative(total))return;
+data.books.push({id:uid(),title,author:$('bookAuthor').value.trim(),status:$('bookStatus').value,page,total,createdAt:today()});
+e.target.reset();save();
+});
+$('libForm').addEventListener('submit',e=>{
+e.preventDefault();
+const title=$('libTitle').value.trim(),borrowed=$('borrowDate').value,due=$('dueDate').value;
+if(!title||!validDate(borrowed)||!validDate(due))return;
+if(due<borrowed){alert('返却期限を貸出日以降にしてください。');return}
+data.library.push({id:uid(),title,borrowed,due,returned:false});
+$('libTitle').value='';save();
+});
+document.addEventListener('click',e=>{
+const b=e.target.closest('button[data-action]');
+if(!b)return;
+const id=b.dataset.id,action=b.dataset.action;
+if(action==='delete'){
+const type=b.dataset.type;
+if(['tasks','books','library'].includes(type)&&confirm('この記録を削除しますか？')){
+data[type]=data[type].filter(x=>x.id!==id);save();
+}
+return;
+}
+if(action==='toggle'){
+const t=data.tasks.find(x=>x.id===id);
+if(t){t.done=!t.done;t.completedAt=t.done?today():null;save()}
+return;
+}
+const book=data.library.find(x=>x.id===id);
+if(!book)return;
+if(action==='return'){book.returned=true;book.returnedAt=today();save()}
+if(action==='undoReturn'){book.returned=false;delete book.returnedAt;save()}
+if(action==='due'){
+const value=prompt('返却期限を YYYY-MM-DD で入力してください',book.due);
+if(value===null)return;
+if(!validDate(value)||value<book.borrowed){alert('貸出日以降の正しい日付を入力してください。');return}
+book.due=value;save();
+}
+});
+document.addEventListener('change',e=>{
+const el=e.target,id=el.dataset.book,key=el.dataset.field;
+if(!id||!['page','total','status'].includes(key))return;
+const book=data.books.find(x=>x.id===id);
+if(!book)return;
+if(key==='status')book.status=el.value;
+else{
+const n=Number(el.value);
+if(!nonnegative(n)){alert('0以上の整数を入力してください。');render();return}
+book[key]=n;
+if(key==='page'&&book.total&&book.page>=book.total)book.status='読了';
+}
+save();
+});
+$('exportButton').addEventListener('click',()=>{
+const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+const url=URL.createObjectURL(blob),a=document.createElement('a');
+a.href=url;a.download='15fun-lab-backup-'+today()+'.json';
+document.body.append(a);a.click();a.remove();
+setTimeout(()=>URL.revokeObjectURL(url),30000);
+});
+$('importFile').addEventListener('change',async e=>{
+const file=e.target.files[0];
+if(!file)return;
+try{
+if(file.size>10000000)throw Error();
+const parsed=JSON.parse(await file.text());
+if(!validData(parsed))throw Error();
+if(confirm('現在の記録をバックアップの内容に置き換えますか？')){
+localStorage.setItem(KEY,JSON.stringify(parsed));
+data=parsed;storageBlocked=false;render();
+alert('バックアップを読み込みました。');
+}
+}catch(err){alert('読み込みに失敗しました。正しいバックアップファイルと、ブラウザの保存設定を確認してください。')}
+e.target.value='';
+});
+$('clearButton').addEventListener('click',()=>{
+if(confirm('すべての勉強・読書・図書館の記録を削除します。取り消せません。')){
+try{
+const cleared={tasks:[],books:[],library:[]};
+localStorage.setItem(KEY,JSON.stringify(cleared));
+data=cleared;storageBlocked=false;render();
+}catch(e){alert('削除を保存できませんでした。ブラウザの保存設定を確認してください。')}
+}
+});
+let lastDay=today();
+document.addEventListener('visibilitychange',()=>{
+if(!document.hidden&&lastDay!==today()){
+lastDay=today();$('taskDate').value=today();render();
+}
+});
+render();
+</script>
+</body>
 </html>
